@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Music Party App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    input {
+      margin: 8px 0;
+      padding: 6px;
+      width: 300px;
+    }
+    button {
+      padding: 8px 12px;
+      margin-bottom: 20px;
+    }
+    audio {
+      margin-top: 20px;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎉 Music Party</h1>
+
+  <section>
+    <h2>Start Session (Host)</h2>
+    <input type="text" id="hostCode" placeholder="Session Code" /><br>
+    <input type="text" id="hostUser" placeholder="Host Username" /><br>
+    <input type="text" id="hostFileName" value="sample_audio.mp3" /><br>
+    <button onclick="startSession()">Start Session</button>
+  </section>
+
+  <hr>
+
+  <section>
+    <h2>Join Session (Guest)</h2>
+    <input type="text" id="guestCode" placeholder="Enter Session Code" /><br>
+    <button onclick="joinSession()">Join & Play</button>
+  </section>
+
+  <audio id="partyAudio" controls></audio>
+
+  <script>
+    async function startSession() {
+      const code = document.getElementById("hostCode").value;
+      const fileName = document.getElementById("hostFileName").value;
+      const hostUser = document.getElementById("hostUser").value;
+
+      const params = new URLSearchParams({ code, fileName, hostUser });
+      try {
+        const response = await fetch(`http://localhost:8080/api/start?${params.toString()}`, {
+          method: "POST"
+        });
+        const result = await response.text();
+        alert(result); // Expect: "Session started"
+      } catch (error) {
+        alert("Failed to start session. Make sure backend is running.");
+        console.error(error);
+      }
+    }
+
+    async function joinSession() {
+      const code = document.getElementById("guestCode").value;
+
+      try {
+        const response = await fetch(`http://localhost:8080/api/join/${code}`);
+        const data = await response.json();
+
+        const trackUrl = `http://localhost:8080/api/music/${data.track}`;
+        const offsetSeconds = data.offset;
+
+        const audio = document.getElementById("partyAudio");
+        audio.src = trackUrl;
+
+    
+
+        audio.addEventListener("loadedmetadata", () => {
+  const offsetSeconds = Number(data.offset);
+  if (isFinite(offsetSeconds)) {
+    audio.currentTime = offsetSeconds;
+    audio.play();
+  } else {
+    alert("Audio sync failed — invalid offset.");
+  }
+});
+
+
+      } catch (error) {
+        alert("Failed to join session. Check the session code.");
+        console.error(error);
+      }
+    }
+  </script>
+</body>
+</html>

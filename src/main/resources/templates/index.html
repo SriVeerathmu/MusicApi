@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Audio Streaming</title>
+</head>
+<body>
+    <h1>Audio Streaming</h1>
+    <audio id="audioPlayer" controls></audio>
+    <button onclick="playAudio('sample_audio.mp3')">Play Audio</button>
+
+    <script>
+        function playAudio(fileName) {
+            const audioPlayer = document.getElementById('audioPlayer');
+            audioPlayer.src = `http://localhost:8080/music/${fileName}`;
+            audioPlayer.load();
+            audioPlayer.play();
+        }
+    </script>
+</body>
+</html>

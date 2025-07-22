@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Join Music Session</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f0f0;
+      text-align: center;
+      padding: 50px;
+    }
+    input, button {
+      padding: 10px;
+      margin: 10px;
+      font-size: 16px;
+    }
+    audio {
+      margin-top: 30px;
+      width: 80%;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🎶 Join a Music Session</h1>
+  <input type="text" id="codeInput" placeholder="Enter Session Code" />
+  <button onclick="joinSession()">Join & Play</button>
+
+  <audio id="player" controls></audio>
+
+  <script>
+    async function joinSession() {
+      const code = document.getElementById("codeInput").value;
+      if (!code) {
+        alert("Please enter a session code.");
+        return;
+      }
+
+      try {
+        const res = await fetch(`http://localhost:8080/music/api/join/${code}`);
+        const data = await res.json();
+
+        const player = document.getElementById("player");
+        player.src = `http://localhost:8080/music/api/music/${data.track}`;
+
+        player.addEventListener("loadedmetadata", () => {
+          player.currentTime = data.offset;
+          player.play();
+        });
+      } catch (err) {
+        console.error("Error joining session:", err);
+        alert("Failed to join session. Check the code or server.");
+      }
+    }
+  </script>
+
+</body>
+</html>
